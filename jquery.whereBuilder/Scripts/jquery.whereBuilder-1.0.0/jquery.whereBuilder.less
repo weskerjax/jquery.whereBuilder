@@ -1,0 +1,48 @@
+
+
+/* (where-builder-picker) 
+-------------------------------------------------- */
+
+table.where-builder-picker {
+	border: 1px solid #ddd;
+	margin: -5px 0;
+	
+	> tbody > tr > td {
+		padding: 4px 2px;
+		vertical-align: baseline;
+		
+		&:first-child {
+			padding-left: 6px;
+		} 
+		&:last-child {
+			padding-right: 6px;
+		} 
+	} 
+	.column select {
+		max-width: 150px;
+	} 
+	.operator select {
+		width: 55px;
+		font-weight: bold;
+	} 
+	.condition {
+		width: 260px;
+
+		input, select { width: 80%; }		
+
+		&.more input, 
+        &.more select { width: 49%; }
+
+		
+		.input-group {
+			float: none;
+			width: auto;
+		}
+		.input-group-addon {
+			border-left: 0 none;
+			border-right: 0 none;
+		}
+	} 
+
+
+} 

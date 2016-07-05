@@ -1,0 +1,96 @@
+﻿<!DOCTYPE html>
+<html class="" style="">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="Robots" content="none">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <title>WhereBuilder Test</title>
+
+    <link href="../bootstrap-3.3.6/css/bootstrap.css" type="text/css" rel="stylesheet" />
+    <link href="../bootstrap-datetimepicker/bootstrap-datetimepicker.css" type="text/css" rel="stylesheet" />
+    <link href="../font-awesome-4.5.0/css/font-awesome.css" type="text/css" rel="stylesheet" />
+    <link href="../../Content/Styles/extensions.css" type="text/css" rel="stylesheet" />
+
+
+    <script src="../moment-2.7.0/moment-2.7.0.js" type="text/javascript"></script>
+    <script src="../jquery-1.12.2/jquery-1.12.2.js" type="text/javascript"></script>
+    <script src="../jquery.cookie-1.4.1/jquery.cookie-1.4.1.js" type="text/javascript"></script>
+    <script src="../jquery.tmpl-1.0.0/jquery.tmpl-1.0.0.js" type="text/javascript"></script>
+    <script src="../bootstrap-3.3.6/js/bootstrap.js" type="text/javascript"></script>
+    <script src="../bootstrap-datetimepicker/bootstrap-datetimepicker.js" type="text/javascript"></script>
+    <script src="../bootstrap-typeahead/bootstrap-typeahead.js" type="text/javascript"></script>
+    <script src="../main/jquery.ezAjax.js" type="text/javascript"></script>
+    <script src="../main/StatusMsg.js" type="text/javascript"></script>
+    <script src="../main/ext-picker.js" type="text/javascript"></script>
+    <script src="../main/ext-typeahead.js" type="text/javascript"></script>
+    <script src="../main/global.js" type="text/javascript"></script>
+
+    <script src="jquery.whereBuilder.js" type="text/javascript"></script>
+
+</head>
+<body id="MainLayout" class="">
+
+    <!--
+    firefox 不顯示 font-awesome 的問題
+        URL  about:config
+        Click security.fileuri.strict_origin_policy  To  false
+    -->
+
+
+
+    <div id="StatusMsg"></div>
+
+
+    <div id="ContainerWrapper" class="clearfix" style="width: 800px; margin: 0 auto; padding-top: 100px;">
+
+
+        <form class="well btn-toolbar" action="">
+            <div id="where-builder" class="toolbar-left">
+            </div>
+			<div class="toolbar-left">
+				<button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-search fa-lg"></i> 搜尋</button>
+			</div>			
+        </form>
+
+
+
+        <form class="well btn-toolbar">
+            <div class="toolbar-left">
+                <select class="where-builder hidden">
+                    <option selected="selected" value="tntr" type="string">課別</option>
+                    <option value="gntr" type="string">組別</option>
+                    <option value="car_date" type="date">借用日</option>
+                    <option value="status" type='{"y":"開啟","n":"關閉"}'>狀態</option>
+                    <option value="status2" type="statusItems">狀態2</option>
+                    <option value="int" type="int">int</option>
+					<option value="uint" type="int">uint</option>
+					<option value="float" type="float">float</option>
+                </select>
+            </div>
+			<div class="toolbar-left">
+				<button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-search fa-lg"></i> 搜尋</button>
+			</div>
+        </form>
+
+    </div>
+
+
+    <script type="text/javascript">
+		var statusItems = {'y':'開啟','n':'關閉'};
+
+        $('#where-builder').whereBuilder({
+            'tntr': { 'type': 'string', 'label': '課別' },
+            'gntr': { 'type': 'string', 'label': '組別' },
+            'car_date': { 'type': 'date', 'label': '借用日' },
+            'maint_cnt': { 'type': 'number', 'label': '保養次數' },
+            'status': { 'type': statusItems, 'label': '狀態' },
+            'status2': { 'type': 'statusItems', 'label': '狀態2' },
+        });
+    </script>
+
+
+
+    <span style="top: -100px;" class="title-tip"></span>
+</body>
+</html>

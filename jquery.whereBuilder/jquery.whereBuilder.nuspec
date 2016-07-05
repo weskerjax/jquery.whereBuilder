@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>jquery.whereBuilder</id>
+    <version>$version$</version>
+    <title>jquery.whereBuilder</title>
+    <authors>JustWin</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$releaseNote$</description>
+  </metadata>
+</package>
