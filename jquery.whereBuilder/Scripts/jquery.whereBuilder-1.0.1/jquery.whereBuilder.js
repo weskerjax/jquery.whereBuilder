@@ -209,9 +209,15 @@
 		} 
 
 		var $select = $('<select class="form-control input-sm">');				
-	    $.each(items, function(value, text){
-			$('<option>',{value: value, text: text}).appendTo($select);
-	    });
+		if ($.isArray(items)) {
+			$.each(items, function (i, text) {
+				$('<option>', { value: text, text: text }).appendTo($select);
+			});
+		} else {
+			$.each(items, function (value, text) {
+				$('<option>', { value: value, text: text }).appendTo($select);
+			});
+		}
 		
 		return {
 			getOperator: function(){
