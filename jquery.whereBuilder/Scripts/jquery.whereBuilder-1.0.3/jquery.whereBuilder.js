@@ -16,8 +16,7 @@
 	
 	
 	var operatorMap = {
-		'':   '',
-		'=':  '=     (等於)',
+		'':  '=     (等於)',
 		'!=': '!=   (不等於)', 
 		'..': ' :    (之間)', 
 		'<':  '<     (小於)', 
@@ -64,7 +63,7 @@
 
 		return {
 			getOperator: function(){
-				return buildOperator(['','=','!=','^=','$=','*=','in','!in']);
+				return buildOperator(['','!=','^=','$=','*=','in','!in']);
 			},
 			getControl: function(){
 				return $('<input type="text" class="form-control input-sm" />');
@@ -81,7 +80,7 @@
 
 		return {
 			getOperator: function(){
-				return buildOperator(['','=','!=','..','<','<=','>','>=','in','!in']);
+				return buildOperator(['','!=','..','<','<=','>','>=','in','!in']);
 			},
 			getControl: function(){
 				var $input = $('<input type="text" class="form-control input-sm" />');
@@ -116,7 +115,7 @@
 
 		return {
 			getOperator: function () {
-				return buildOperator(['', '=', '!=', '..', '<', '<=', '>', '>=', 'in', '!in']);
+				return buildOperator(['','!=','..','<','<=','>','>=','in','!in']);
 			},
 			getControl: function () {
 				var $input = $('<input type="text" class="form-control input-sm" />');
@@ -151,7 +150,7 @@
 
 		return {
 			getOperator: function () {
-				return buildOperator(['', '=', '!=', '..', '<', '<=', '>', '>=', 'in', '!in']);
+				return buildOperator(['','!=','..','<','<=','>','>=','in','!in']);
 			},
 			getControl: function () {
 				var $input = $('<input type="text" class="form-control input-sm" />');
@@ -185,7 +184,7 @@
 
 		return {
 			getOperator: function(){
-				return buildOperator(['','=','!=','..','<','<=','>','>=','in','!in']);
+				return buildOperator(['','!=','..','<','<=','>','>=','in','!in']);
 			},
 			getControl: function(){
 				var $input = $('<input type="text" class="form-control input-sm" />');
@@ -221,7 +220,7 @@
 		
 		return {
 			getOperator: function(){
-				return buildOperator(['','=','!=','in','!in']);
+				return buildOperator(['','!=','in','!in']);
 			},
 			getControl: function(){
 				return $select.clone();
