@@ -281,7 +281,7 @@
 			
 			/* 拆解 QueryString */
 			$.each(raws, function(i, raw) {
-				var split = raw.split('=');
+			    var split = (raw + '=').split('=');
 				var column = decodeURIComponent(split[0]);
 				var value = decodeURIComponent(split[1].replace('+', ' '));
 				if(!self.columns[column]){ return; }
