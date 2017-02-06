@@ -179,7 +179,7 @@
 	typeHandle.push(function (type) {
 		type = ('' + type).toLowerCase();
 
-		var supportType = ['date', 'datetime'];
+		var supportType = ['date'];
 		if ($.inArray(type, supportType) == -1) { return null; }
 
 		return {
@@ -194,7 +194,31 @@
 			},
 		};
 	});
-		   
+
+
+
+	/*=[datetime]====================================*/
+	typeHandle.push(function (type) {
+		type = ('' + type).toLowerCase();
+
+		var supportType = ['datetime'];
+		if ($.inArray(type, supportType) == -1) { return null; }
+
+		return {
+			getOperator: function () {
+				return buildOperator(['..', '<', '<=', '>', '>=']);
+			},
+			getControl: function () {
+				var $input = $('<input type="text" class="form-control input-sm" />');
+				$input.datetimepicker({ format: 'yyyy-MM-dd', pickTime: false });
+
+				return $input;
+			},
+		};
+	});
+
+
+
 	/*=[items]====================================*/	
 	typeHandle.push(function(type){
 		var items = {};
