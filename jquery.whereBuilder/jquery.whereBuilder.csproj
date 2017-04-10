@@ -13,9 +13,6 @@
     <Content Include="Scripts\jquery.whereBuilder\jquery.whereBuilder.min.css">
       <DependentUpon>jquery.whereBuilder.less</DependentUpon>
     </Content>
-    <Content Include="Scripts\jquery.whereBuilder\jquery.whereBuilder.min.js">
-      <DependentUpon>jquery.whereBuilder.js</DependentUpon>
-    </Content>
     <Content Include="Scripts\jquery.whereBuilder\jquery.whereBuilder.Test.htm" />
     <Content Include="Scripts\jquery.whereBuilder\jquery.whereBuilder.css.map">
       <DependentUpon>jquery.whereBuilder.less</DependentUpon>
@@ -25,9 +22,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="jquery.whereBuilder.nuspec" />
-    <None Include="Scripts\jquery.whereBuilder\jquery.whereBuilder.min.js.map">
-      <DependentUpon>jquery.whereBuilder.min.js</DependentUpon>
-    </None>
   </ItemGroup>
   <!-- 空的 Build -->
   <Target Name="Build" />

@@ -219,6 +219,30 @@
 
 
 
+	/*=[bool]====================================*/
+	typeHandle.push(function (type) {
+		type = ('' + type).toLowerCase();
+
+		var supportType = ['bool'];
+		if ($.inArray(type, supportType) == -1) { return null; }
+
+		var $select = $('<select class="form-control input-sm">');
+		$('<option>', { value: '', text: '' }).appendTo($select);
+		$('<option>', { value: 'True', text: '是' }).appendTo($select);
+		$('<option>', { value: 'False', text: '否' }).appendTo($select);
+
+		return {
+			getOperator: function () {
+				return buildOperator(['', '!=']);
+			},
+			getControl: function () {
+				return $select.clone();
+			},
+		};
+	});
+
+
+
 	/*=[items]====================================*/	
 	typeHandle.push(function(type){
 		var items = {};
@@ -232,6 +256,8 @@
 		} 
 
 		var $select = $('<select class="form-control input-sm">');				
+		$('<option>', { value: '', text: '' }).appendTo($select);
+
 		if ($.isArray(items)) {
 			$.each(items, function (i, text) {
 				$('<option>', { value: text, text: text }).appendTo($select);
@@ -307,8 +333,11 @@
 			$.each(raws, function(i, raw) {
 				var split = raw.replace('+', ' ').split('=');
 				var column = decodeURIComponent(split[0]);
-				var value = decodeURIComponent(split[1]);
 				if(!self.columns[column]){ return; }
+				
+				var value = '';
+				try { value = decodeURIComponent(split[1]); }
+				catch (e) { value = unescape(split[1]); }			
 				
 				/* 還原 Field */
 				self.revertField(self.addRow(), column, value);
