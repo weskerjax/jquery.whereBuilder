@@ -1,9 +1,9 @@
-(function($) {
+(function ($) {
 	"use strict";
 
 	var widgetSelector = '.where-builder';
 	var addBtnTemplate = '<span class="fa fa-plus fa-lg cursor-pointer" title="增加"></span>';
-	
+
 	var $rowTemplate = $(
 		'<tr class="hover-visible">' +
 		  '<td class="add_btn">且</td>' +
@@ -13,279 +13,481 @@
 		  '<td class="delete_btn"><i class="fa fa-times fa-lg text-danger visible-target cursor-pointer" title="刪除"></i></td>' +
 		'</tr>'
 	);
-	
-	
+
+
 	var operatorMap = {
-		'':  '=     (等於)',
-		'!=': '!=   (不等於)', 
-		'..': ' :    (之間)', 
-		'<':  '<     (小於)', 
-		'<=': '<=   (小於等於)', 
-		'>':  '>     (大於)', 
-		'>=': '>=   (大於等於)', 
-		'in': 'IN   (內容列表)', 
-		'!in':'!IN  (非內容列表)', 
-		'^=': '^=   (開頭內容等於)', 
-		'$=': '$=   (結尾內容等於)', 
+		'': '=     (等於)',
+		'!=': '!=   (不等於)',
+		'..': '~    (之間)',
+		'<': '<     (小於)',
+		'<=': '<=   (小於等於)',
+		'>': '>     (大於)',
+		'>=': '>=   (大於等於)',
+		'in': 'IN   (內容列表)',
+		'!in': '!IN  (非內容列表)',
+		'^=': '^=   (開頭內容等於)',
+		'$=': '$=   (結尾內容等於)',
 		'*=': '*=   (部份內容等於)'
 	};
 
-		
-	function buildOperator(operatorList){		
-		return $.map(operatorList, function(operator){
-			var label = operatorMap[operator].replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/ /g, '&nbsp;');	    	
-			return '<option value="'+operator+'">'+label+'</option>';
+
+	function buildOperator(operatorList) {
+		return $.map(operatorList, function (operator) {
+			var label = operatorMap[operator].replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/ /g, '&nbsp;');
+			return '<option value="' + operator + '">' + label + '</option>';
 		}).join('');
-	}	
-		
-	
-	
-	
-	/*######################################################*/
-	
-	var typeHandle = [];
-
-	function getTypeHandle(type) {		
-		for (var i = 0; i < typeHandle.length; i++){
-			var handle = typeHandle[i](type);
-			if(handle != null){ return handle; }
-		}
-		return typeHandle[0]('string');
 	}
-	
 
-	/*=[string]====================================*/	
-	typeHandle.push(function (type) {
+	function makeOptions(items) {
+		var options = [];
+
+		if ($.isArray(items)) {
+			$.each(items, function (i, text) { options.push({ value: text, text: text }); });
+		} else {
+			$.each(items, function (value, text) {options.push({ value: value, text: text }); });
+		}
+		return options;
+	}
+
+	
+	function createInput(setting) {
+		var $input = $('<input type="text" class="form-control input-sm" />');
+		if (setting) { setting($input); }
+
+		$input.focus(function () { this.select(); });
+		return $input;
+	}
+
+	function createTextarea(setting) {
+		var $input = $('<textarea class="form-control input-sm" placeholder="多筆查詢一行一個"></textarea>');
+		if (setting) { setting($input); }
+				
+		$input.bind({
+			'focus': function () {
+				this.select();
+			},
+			'change':function () {
+				var uniqueSet = {};
+				$.each($(this).val().split(/\s/), function (i, value) {
+					uniqueSet[$.trim(value)] = 1;
+				});
+
+				var values = $.map(uniqueSet, function (i, value) { return value; });
+				$(this).val(values.join('\n'));
+			},
+			'init change keyup paste cut':function (e) {
+				$(this).height(0).height($(this).prop("scrollHeight") + 10);
+			},
+		});
+
+		return $input;
+	}
+
+	function createSelect(options) {
+		var $select = $('<select class="form-control input-sm">');
+		$.tmpl('<option value="${value}">${text}</option>', options).appendTo($select);
+		return $select;
+	}
+
+
+	function createCheckbox(options) {
+		var $select = $('<div class="form-control options">');
+		$.tmpl('<label class="checkbox-inline"><input type="checkbox" value="${value}"/>${text}</label>', options).appendTo($select);
+		return $select;
+	}
+
+	function createRadio(options) {
+		var $select = $('<div class="form-control options">');
+		$.tmpl('<label class="radio-inline"><input type="radio" value="${value}"/>${text}</label>', options).appendTo($select);
+
+		var $input = $select.find(':input');
+		$input.on('init change', function () { $input.not(this).prop('checked', false); })
+		$input.first().prop('checked', true);
+
+		return $select;
+	}
+
+
+
+
+
+	/*######################################################*/
+
+	var typeHandles = [];
+
+	function getTypeHandle(type) {
+		for (var i = 0; i < typeHandles.length; i++) {
+			var handle = typeHandles[i](type);
+			if (handle != null) { return handle; }
+		}
+		return typeHandles[0]('string');
+	}
+
+	var baseHandle = {
+		//_inputSetting: function ($input) {},
+		//getOperator: function () {},
+		setControl: function ($cond, mod) { /* input [single, between, multiple] */
+			switch (mod) {
+			case 'between': /* 之間 */
+				var $group = $('<div class="input-group input-group-sm">');
+				$group.append(createInput(this._inputSetting));
+				$group.append('<span class="input-group-addon">~</span>');
+				$group.append(createInput(this._inputSetting));
+				$cond.html($group);
+				break;
+			case 'multiple':
+				$cond.html(createTextarea(this._inputSetting));
+				break;
+			default:
+				$cond.html(createInput(this._inputSetting));
+				break;
+			}
+		},
+		revertControl: function ($cond, mod, values) {
+			this.setControl($cond, mod);
+			var $input = $cond.find(':input');
+
+			switch (mod) {
+			case 'between': /* 之間 */
+				$input.eq(0).val(values[0]);
+				$input.eq(1).val(values[1]);
+				break;
+			case 'multiple':
+				$input.val(values.join('\n')).trigger('init');
+				break;
+			default:
+				$input.val(values.join(' '));
+				break;
+			}
+		},
+		getValues: function ($cond, mod) {
+			var $input = $cond.find(':input');
+
+			if (mod === 'multiple') {
+				return $input.val().split(/\s/);
+			} else {
+				return $input.map(function () { return $.trim($(this).val()); }).toArray();
+			}
+		}
+	};
+
+
+
+	/*=[string]====================================*/
+
+	typeHandles.push(function (type) {
 		type = ('' + type).toLowerCase();
 
 		var supportType = ['string', 'char'];
-		if ($.inArray(type, supportType) == -1) { return null; }
+		if ($.inArray(type, supportType) === -1) { return null; }
+
 
 		return {
-			getOperator: function(){
-				return buildOperator(['','!=','^=','$=','*=','in','!in']);
+			getOperator: function () {
+				return buildOperator(['', '!=', '^=', '$=', '*=', 'in', '!in']);
 			},
-			getControl: function(){
-				return $('<input type="text" class="form-control input-sm" />');
-			},
+			setControl: baseHandle.setControl,
+			revertControl: baseHandle.revertControl,
+			getValues: baseHandle.getValues
 		};
 	});
-	 
-	/*=[number]====================================*/	
-	typeHandle.push(function (type) {
+
+
+
+	/*=[upper]====================================*/
+	typeHandles.push(function (type) {
+		type = ('' + type).toLowerCase();
+
+		var supportType = ['upper'];
+		if ($.inArray(type, supportType) === -1) { return null; }
+
+		return {
+			_inputSetting: function ($input) {
+				$input.css('text-transform','uppercase');
+				$input.change(function () { this.value = this.value.toUpperCase(); });
+			},
+			getOperator: function () {
+				return buildOperator(['', '!=', '^=', '$=', '*=', 'in', '!in']);
+			},
+			setControl: baseHandle.setControl,
+			revertControl: baseHandle.revertControl,
+			getValues: baseHandle.getValues
+		};
+	});
+
+
+
+	/*=[number]====================================*/
+	typeHandles.push(function (type) {
 		type = ('' + type).toLowerCase();
 
 		var supportType = ['number', 'decimal', 'float', 'double'];
-		if ($.inArray(type, supportType) == -1) { return null; }
+		if ($.inArray(type, supportType) === -1) { return null; }
 
+ 
 		return {
-			getOperator: function(){
-				return buildOperator(['','!=','..','<','<=','>','>=','in','!in']);
-			},
-			getControl: function(){
-				var $input = $('<input type="text" class="form-control input-sm" />');
-				
+			_inputSetting: function ($input) {
 				$input.keydown(function (e) {
-					var val = $.trim(this.value);
-					if (e.key == '-' && val) { return false; }
-					if (e.key == '.' && ~val.indexOf('.')) { return false; }
+					if (e.altKey || e.ctrlKey) { return; }
+					if (e.keyCode < 58 || e.keyCode > 90) { return; }
 
-					if(e.altKey || e.ctrlKey){ return; }
-					if(e.keyCode < 58 || e.keyCode > 90){ return; }
-					
-					e.preventDefault(); 
+					e.preventDefault();
 				});
-				$input.keyup(function(){
-					var m = this.value.match(/(-?([0-9]*)?)(\.[0-9]*)?/);
-					this.value = m ? m[0] : '';
-				});					
-				
-				return $input;
+				$input.change(function () {
+					var m = this.value.match(/(-?[\.0-9]+)/gm);
+					this.value = m ? m.join('\n') : '';
+				});
 			},
+			getOperator: function () {
+				return buildOperator(['', '!=', '..', '<', '<=', '>', '>=', 'in', '!in']);
+			},
+			setControl: baseHandle.setControl,
+			revertControl: baseHandle.revertControl,
+			getValues: baseHandle.getValues
 		};
 	});
-		   
+
 
 	/*=[int]====================================*/
-	typeHandle.push(function (type) {
+	typeHandles.push(function (type) {
 		type = ('' + type).toLowerCase();
 
 		var supportType = ['int', 'long', 'short', 'int32', 'int64'];
-		if ($.inArray(type, supportType) == -1) { return null; }
+		if ($.inArray(type, supportType) === -1) { return null; }
 
+ 
 		return {
-			getOperator: function () {
-				return buildOperator(['','!=','..','<','<=','>','>=','in','!in']);
-			},
-			getControl: function () {
-				var $input = $('<input type="text" class="form-control input-sm" />');
-
+			_inputSetting: function ($input) {
 				$input.keydown(function (e) {
-					var val = $.trim(this.value);
-					if (e.key == '-' && val) { return false; }
-					if (e.key == '.') { return false; }
-
+					if (e.key === '.') { return false; }
 					if (e.altKey || e.ctrlKey) { return; }
 					if (e.keyCode < 58 || e.keyCode > 90) { return; }
 
 					e.preventDefault();
 				});
-				$input.keyup(function () {
-					var m = this.value.match(/(-?([0-9]*)?)/);
-					this.value = m ? m[0] : '';
+				$input.change(function () {
+					var m = this.value.match(/(-?[0-9]+)/gm);
+					this.value = m ? m.join('\n') : '';
 				});
-
-				return $input;
 			},
+			getOperator: function () {
+				return buildOperator(['', '!=', '..', '<', '<=', '>', '>=', 'in', '!in']);
+			},
+			setControl: baseHandle.setControl,
+			revertControl: baseHandle.revertControl,
+			getValues: baseHandle.getValues
 		};
 	});
+
+
+
 
 
 	/*=[uint]====================================*/
-	typeHandle.push(function (type) {
+	typeHandles.push(function (type) {
 		type = ('' + type).toLowerCase();
 
 		var supportType = ['uint', 'ulong', 'ushort'];
-		if ($.inArray(type, supportType) == -1) { return null; }
+		if ($.inArray(type, supportType) === -1) { return null; }
+
 
 		return {
-			getOperator: function () {
-				return buildOperator(['','!=','..','<','<=','>','>=','in','!in']);
-			},
-			getControl: function () {
-				var $input = $('<input type="text" class="form-control input-sm" />');
-
+			_inputSetting: function ($input) {
 				$input.keydown(function (e) {
-					if (e.key == '.' || e.key == '-') { return false; }
+					if (e.key === '.' || e.key === '-') { return false; }
 
 					if (e.altKey || e.ctrlKey) { return; }
 					if (e.keyCode < 58 || e.keyCode > 90) { return; }
 
 					e.preventDefault();
 				});
-				$input.keyup(function () {
-					var m = this.value.match(/(([0-9]*)?)/);
-					this.value = m ? m[0] : '';
+				$input.change(function () {
+					var m = this.value.match(/([0-9]+)/gm);
+					this.value = m ? m.join('\n') : '';
 				});
-
-				return $input;
 			},
+			getOperator: function () {
+				return buildOperator(['', '!=', '..', '<', '<=', '>', '>=', 'in', '!in']);
+			},
+			setControl: baseHandle.setControl,
+			revertControl: baseHandle.revertControl,
+			getValues: baseHandle.getValues
 		};
 	});
 
 
 
-	/*=[date]====================================*/	
-	typeHandle.push(function (type) {
+	/*=[date]====================================*/
+	typeHandles.push(function (type) {
 		type = ('' + type).toLowerCase();
 
 		var supportType = ['date'];
-		if ($.inArray(type, supportType) == -1) { return null; }
+		if ($.inArray(type, supportType) === -1) { return null; }
+
+
+		function inputSetting($input) {
+			$input.datetimepicker({ format: 'yyyy-MM-dd', pickTime: false });
+		}
+
+		function textareaSetting($input) {
+			$input.datetimepicker({ format: 'yyyy-MM-dd', pickTime: false });
+			$input.on('dp.change', function (e) {
+				var orgValue = $.trim($input.val());
+				if (orgValue) { orgValue += '\n'; }
+
+				$input.val(orgValue + moment(e.date).format("YYYY-MM-DD"));
+				$input.data('DateTimePicker').show();
+			}); 
+		}
+
 
 		return {
-			getOperator: function(){
-				return buildOperator(['','!=','..','<','<=','>','>=','in','!in']);
+		    getOperator: function () {
+		        return buildOperator(['', '!=', '..', '<', '<=', '>', '>=', 'in', '!in']);
+		    },
+		    setControl: function ($cond, mod) { /* input [single, between, multiple] */
+				switch (mod) {
+				case 'between': /* 之間 */
+					var $group = $('<div class="input-group input-group-sm">');
+					$group.append(createInput(inputSetting));
+					$group.append('<span class="input-group-addon">~</span>');
+					$group.append(createInput(inputSetting));
+					$cond.html($group);
+					break;
+				case 'multiple':
+					$cond.html(createTextarea(textareaSetting));
+					break;
+				default:
+					$cond.html(createInput(inputSetting));
+					break;
+				}
 			},
-			getControl: function(){
-				var $input = $('<input type="text" class="form-control input-sm" />');
-				$input.datetimepicker({format:'yyyy-MM-dd', pickTime:false}); 
-				
-				return $input;
-			},
+			revertControl: baseHandle.revertControl,
+			getValues: baseHandle.getValues
 		};
 	});
 
 
 
 	/*=[datetime]====================================*/
-	typeHandle.push(function (type) {
+	typeHandles.push(function (type) {
 		type = ('' + type).toLowerCase();
 
 		var supportType = ['datetime'];
-		if ($.inArray(type, supportType) == -1) { return null; }
+		if ($.inArray(type, supportType) === -1) { return null; }
+
+		function inputSetting($input) {
+			$input.datetimepicker({ format: 'yyyy-MM-dd', pickTime: false });
+		}
+
 
 		return {
 			getOperator: function () {
 				return buildOperator(['..', '<', '<=', '>', '>=']);
 			},
-			getControl: function () {
-				var $input = $('<input type="text" class="form-control input-sm" />');
-				$input.datetimepicker({ format: 'yyyy-MM-dd', pickTime: false });
-
-				return $input;
+			setControl: function ($cond, mod) { /* input [single, between, multiple] */
+				if (mod === 'between') {
+					var $group = $('<div class="input-group input-group-sm">');
+					$group.append(createInput(inputSetting));
+					$group.append('<span class="input-group-addon">~</span>');
+					$group.append(createInput(inputSetting));
+					$cond.html($group);
+				} else {
+					$cond.html(createInput(inputSetting));
+				}
 			},
+			revertControl: baseHandle.revertControl,
+			getValues: baseHandle.getValues
 		};
 	});
 
 
 
 	/*=[bool]====================================*/
-	typeHandle.push(function (type) {
+	typeHandles.push(function (type) {
 		type = ('' + type).toLowerCase();
 
 		var supportType = ['bool'];
-		if ($.inArray(type, supportType) == -1) { return null; }
+		if ($.inArray(type, supportType) === -1) { return null; }
 
-		var $select = $('<select class="form-control input-sm">');
-		$('<option>', { value: '', text: '' }).appendTo($select);
-		$('<option>', { value: 'True', text: '是' }).appendTo($select);
-		$('<option>', { value: 'False', text: '否' }).appendTo($select);
-
-		return {
-			getOperator: function () {
-				return buildOperator(['', '!=']);
-			},
-			getControl: function () {
-				return $select.clone();
-			},
-		};
+		return getTypeHandle('{"True":"是","False":"否"}');
 	});
 
 
 
-	/*=[items]====================================*/	
-	typeHandle.push(function(type){
+	/*=[items]====================================*/
+	typeHandles.push(function (type) {
 		var items = {};
-		if($.isPlainObject(type)){
+		if ($.isPlainObject(type)) {
 			items = type;
-		}else if($.isPlainObject(window[type])){
+		} else if (window[type] !== undefined) {
 			items = window[type];
-		}else{
-			try { items = $.parseJSON(type); } 
-			catch (e) { console.error(type + ' ' + e); return null; }			
-		} 
-
-		var $select = $('<select class="form-control input-sm">');				
-		$('<option>', { value: '', text: '' }).appendTo($select);
-
-		if ($.isArray(items)) {
-			$.each(items, function (i, text) {
-				$('<option>', { value: text, text: text }).appendTo($select);
-			});
 		} else {
-			$.each(items, function (value, text) {
-				$('<option>', { value: value, text: text }).appendTo($select);
-			});
+			try { items = $.parseJSON(type); }
+			catch (e) { console.error(type + ' ' + e); return null; }
 		}
-		
-		return {
-			getOperator: function(){
-				return buildOperator(['','!=','in','!in']);
-			},
-			getControl: function(){
-				return $select.clone();
-			},
-		};
+
+		var options = makeOptions(items);
+
+		if (options.length < 3) {
+			return {
+				getOperator: function () {
+					return buildOperator(['']);
+				},
+				setControl: function ($cond, mod) { /* input [single, between, multiple] */
+					$cond.html(createRadio(options));
+				},
+				revertControl: function ($cond, mod, values) {
+					this.setControl($cond, mod);
+					$cond.find(':input').prop('checked', function () { return this.value === values[0]; });
+				},
+				getValues: function ($cond, mod) {
+					var values = $cond.find(':input:checked').map(function () { return $.trim($(this).val()); }).toArray();
+					values.push('');
+					return values;
+				}
+			};
+		}
+		else {
+			return {
+				getOperator: function () {
+					return buildOperator(['', '!=', 'in', '!in']);
+				},
+				setControl: function ($cond, mod) { /* input [single, between, multiple] */
+					if (mod === 'multiple') {
+						$cond.html(createCheckbox(options));
+					} else {
+						$cond.html(createSelect(options));
+					}
+				},
+				revertControl: function ($cond, mod, values) {
+					this.setControl($cond, mod);
+					var $input = $cond.find(':input');
+				
+					if (mod === 'multiple') {
+						$input.prop('checked', function () { return ~$.inArray(this.value, values); }); 
+					} else {
+						$input.val(values[0]);
+					}
+				},
+				getValues: function ($cond, mod) {
+					var $input = $cond.find(':input');
+
+					if (mod === 'multiple') { $input = $input.filter(':checked'); }
+					return $input.map(function () { return $.trim($(this).val()); }).toArray();
+				}
+			};
+		}	 
 	});
 
 
 
 
-		
-			
-	
+
+
+
 	/*######################################################*/
-		
+
 	/**
 	 * columns = {
 	 *      'tntr': { 'label': '課別', 'type': 'string' },
@@ -293,315 +495,295 @@
 	 *      'status': { 'label': '狀態', 'type': {'y':'開啟','n':'關閉'} },
 	 * }
 	 * */
-	
+
 	/* class WhereBuilder */
 	function WhereBuilder(el, columns) {
 		var self = this;
 		self.$widget = $(el);
 		self.$table = $('<table class="table form-inline where-builder-picker"></table>').appendTo(self.$widget);
-		self.columnTotal = 0; 
-		self.columns = $.extend({ 
-			'': { 'type': '', 'label': '請選擇' } 
+		self.columnTotal = 0;
+		self.columns = $.extend({
+			'': { 'type': '', 'label': '請選擇' }
 		}, columns);
-		
-		$.each(columns, function(i, meta){
-			self.columnTotal++;			 
-			meta.handle = getTypeHandle(meta.type);			
+
+		$.each(columns, function (i, meta) {
+			self.columnTotal++;
+			meta.handle = getTypeHandle(meta.type);
 		});
-		
-		self.columnOption = $.map(self.columns, function(meta, column){
-			return '<option value="'+column+'">'+meta.label+'</option>';
+
+		self.columnOption = $.map(self.columns, function (meta, column) {
+			return '<option value="' + column + '">' + meta.label + '</option>';
 		}).join('');
-		
+
 		self._initField();
-		if(self.$table.find('tr').length == 0){ self.addRow(); }
-		
-		self._initEvent();		
+		if (self.$table.find('tr').length === 0) { self.addRow(); }
+
+		self._initEvent();
 	}
-	
-	
-	
+
+
+
 	WhereBuilder.prototype = {
-			
+
 		/* 初始化 Field */
-		_initField: function() {
+		_initField: function () {
 			var self = this;
 			var qs = location.search.substr(1) || '';
 			var raws = qs.split('#')[0].split('&') || [];
-			
+
 			/* 拆解 QueryString */
-			$.each(raws, function(i, raw) {
+			$.each(raws, function (i, raw) {
 				var split = raw.replace('+', ' ').split('=');
 				var column = decodeURIComponent(split[0]);
-				if(!self.columns[column]){ return; }
-				
+				if (!self.columns[column]) { return; }
+
 				var value = '';
 				try { value = decodeURIComponent(split[1]); }
-				catch (e) { value = unescape(split[1]); }			
-				
+				catch (e) { value = unescape(split[1]); }
+
 				/* 還原 Field */
 				self.revertField(self.addRow(), column, value);
 			});
 		},
-		
-		
+
+
 		/* 初始化 Event */
-		_initEvent: function() {
+		_initEvent: function () {
 			var self = this;
-			
+
 			/* 增加 row */
-			self.$table.on('click', '.add_btn span', function(){ self.addRow(); });
-			
-			
+			self.$table.on('click', '.add_btn span', function () { self.addRow(); });
+
+
 			/* 刪除 row */
-			self.$table.on('click', '.delete_btn .fa', function(){
-				$(this).closest('tr').remove();                
-				if(self.$table.find('tr').length == 0){ self.addRow(); }
+			self.$table.on('click', '.delete_btn .fa', function () {
+				$(this).closest('tr').remove();
+				if (self.$table.find('tr').length === 0) { self.addRow(); }
 				self._checkAddBtn();
 			});
-			
+
 
 			/* column 只能單選處理 */
-			self.$table.on('focus', '.column select', function(){
-				
+			self.$table.on('focus', '.column select', function () {
+
 				var hideColumn = self.$table.find('.column select').not(this)
-					.map(function(){ return $(this).val() || null; })
-					.map(function(){ return '[value="'+this+'"]';  })
+					.map(function () { return $(this).val() || null; })
+					.map(function () { return '[value="' + this + '"]'; })
 					.toArray().join();
-					
-				$(this).find('option').show().filter(hideColumn).hide();						
+
+				$(this).find('option').show().filter(hideColumn).hide();
 			});
 
-			
+
 			/* column 對 operator 的連動 */
-			self.$table.on('change', '.column select', function(){
+			self.$table.on('change', '.column select', function () {
 				var $tr = $(this).closest('tr');
-				var $cond = $tr.find('.condition').empty();
 				var $operator = $tr.find('.operator select').empty();
-				
+
 				var column = $(this).val();
 				$tr.find('.field').attr('name', column);
-				
+
 				var handle = self.columns[column].handle;
 				$tr.data('handle', handle);
-				if(!handle){ return; }
-				
-				$cond.html(handle.getControl());
-				$operator.html(handle.getOperator());				
+				if (!handle) { return; }
+
+				$tr.find('.condition').data('mod', '');
+				$operator.html(handle.getOperator());
 				$operator.val('').trigger('change');
 			});
-				
-			
+
+
 			/* operator 對 condition 連動 */
-			self.$table.on('change', '.operator select', function(){
+			self.$table.on('change', '.operator select', function () {
 				var $tr = $(this).closest('tr');
 				var handle = $tr.data('handle');
-				if(!handle){ return; }
-								
+				if (!handle) { return; }
+
 				var $cond = $tr.find('.condition');
-				var $controls = $cond.find(':input');
+				var mod = $cond.data('mod');
 				var operator = $(this).val();
-				$cond.removeClass('more');
-				
-				/* input [one, two, more] */
+
+				/* input [single, between, multiple] */
 				switch (operator) {
 				case '..': /* 之間 */
-					if($cond.has('.input-group').length > 0){ break; }
-					
-					var $group = $('<div class="input-group input-group-sm">');
-					$group.append(handle.getControl()); 
-					$group.append('<span class="input-group-addon">~</span>'); 
-					$group.append(handle.getControl()); 
-					$cond.html($group);				
+					if (mod === 'between') { return; }
+					mod = 'between';
 					break;
-					
+
 				case 'in': /* 內容列表 */
 				case '!in': /* 非內容列表 */
-					$cond.addClass('more');
-					if($cond.has('.input-group').length > 0){ 
-						$cond.html(handle.getControl()); /*重建*/
-					}else{
-						$cond.find(':input').trigger('change');
-					}
+					if (mod === 'multiple') { return self.computeField($tr); }
+					mod = 'multiple';
 					break;
-					
+
 				default:
-					if($controls.length == 1){ break; }				
-					$cond.html(handle.getControl()); /*多數重建*/
+					if (mod === 'single') { return self.computeField($tr); }
+					mod = 'single';
 					break;
-				}                
+				}
+
+				handle.setControl($cond, mod);
+				$cond.data('mod', mod);
 			});
-			
-			
-			/* 自動增加 condition 欄位 */
-			self.$table.on('change', '.condition.more', function(){
-				var $tr = $(this).closest('tr');
-				var handle = $tr.data('handle');
-								
-				var $cond = $(this);
-				$cond.find(':input').each(function(){
-					if(!$(this).val().trim()){ $(this).remove(); }
-				});
-				$cond.append(handle.getControl().val(''));
-			});
-			
-			
+
+
+
 			/* 計算 Field */
-			self.$table.on('change keyup', 'tr', function(){
-				self.computeField($(this)); 
+			self.$table.on('change', 'tr', function () {
+				self.computeField($(this));
 			});
 		},
-		
-		
+
+
 		/* 檢查增加按鈕 */
-		_checkAddBtn: function() {
+		_checkAddBtn: function () {
 			var self = this;
 			var rowCount = self.$table.find('tr').length;
 			var $firstAddBtn = self.$table.find('tr:first-child .add_btn');
-			
-			if(rowCount >= self.columnTotal){ 
-				$firstAddBtn.html(''); 
-			}else{
-				$firstAddBtn.html(addBtnTemplate);					
+
+			if (rowCount >= self.columnTotal) {
+				$firstAddBtn.html('');
+			} else {
+				$firstAddBtn.html(addBtnTemplate);
 			}
-		},        
-		
-		
+		},
+
+
 		/* 增加 row */
-		addRow: function() {
+		addRow: function () {
 			var self = this;
 			var $tr = $rowTemplate.clone();
-			$tr.find('.column select').html(self.columnOption);     
+			$tr.find('.column select').html(self.columnOption);
 			$tr.appendTo(self.$table);
 			self._checkAddBtn();
 			return $tr;
 		},
-		
+
 
 		/* 還原 Field */
-		revertField: function($tr, column, value) {
-			var self = this;			
+		revertField: function ($tr, column, value) {
+			var self = this;
 			var meta = self.columns[column];
-			if(!meta || !meta.handle){ return; }
-			
+			if (!meta || !meta.handle) { return; }
+
 			var handle = meta.handle;
 			$tr.data('handle', handle);
 			$tr.find('.column select').val(column);
 			$tr.find('.field').attr('name', column).val(value);
-			
-			var $cond = $tr.find('.condition');
+
 			var $operator = $tr.find('.operator select');
 			$operator.html(handle.getOperator());
-			
-			var operator = value.substr(0,2);
-			if(~$.inArray(operator, ['!=','<=','>=','^=','*=','$='])){
-				$operator.val(operator);
-				handle.getControl().val(value.substr(2)).appendTo($cond);
-				return; 
-			}
-			
-			var operator = value.substr(0,1);
-			if(~$.inArray(operator, ['=','<','>'])){
-				$operator.val(operator);
-				handle.getControl().val(value.substr(1)).appendTo($cond);
-				return; 
+
+			var operator = value.substr(0, 2);
+			var mod = 'single';
+			var values = [value];
+
+			do {
+				if (~$.inArray(operator, ['!=', '<=', '>=', '^=', '*=', '$='])) {
+					$operator.val(operator);
+					values = [value.substr(2)];
+					break;
+				}
+
+				operator = value.substr(0, 1);
+				if (~$.inArray(operator, ['=', '<', '>'])) {
+					$operator.val(operator);
+					values = [value.substr(1)];
+					break;
+				}
+
+				var split = value.split('..');
+				if (split.length === 2) {
+					$operator.val('..');
+					mod = 'between';
+					values = split;
+					break;
+				}
+
+				split = value.split('|');
+				if (split.length > 1) {
+					if (split[0].charAt(0) === '!') {
+						$operator.val('!in');
+						split[0] = split[0].substr(1);
+					} else {
+						$operator.val('in');
+					}
+					mod = 'multiple';
+					values = split;
+					break;
+				}
+			} while (false);
+
+
+			var $cond = $tr.find('.condition');
+			$cond.data('mod', mod);
+			handle.revertControl($cond, mod, values);
+		},
+
+		/* 計算 Field */
+		computeField: function ($tr) {
+			var $cond = $tr.find('.condition');
+			var handle = $tr.data('handle');
+			var operator = $tr.find('.operator select').val();
+
+			var values = handle.getValues($cond, $cond.data('mod'))
+			var value = operator + values[0];
+			switch (operator) {
+				case '..': /* 之間 */
+					value = values.join('..');
+					break;
+
+				case 'in': /* 內容列表 */
+				case '!in': /* 非內容列表 */
+					value = values.join('|')+'|';
+					if ('!in' === operator) { value = '!' + value; }
+					break;
 			}
 
-			var split = value.split('..');
-			if(split.length == 2){
-				$operator.val('..');
-				
-				var $group = $('<div class="input-group input-group-sm">');
-				$group.append(handle.getControl().val(split[0])); 
-				$group.append('<span class="input-group-addon">~</span>'); 
-				$group.append(handle.getControl().val(split[1])); 
-				$cond.html($group);
-				return; 
-			}
-			
-			var split = value.split('|');
-			if(split.length > 1){
-				if(split[0].charAt(0) == '!'){
-					$operator.val('!in');
-					split[0] = split[0].substr(1);
-				}else{
-					$operator.val('in');
-				}
-			
-				split.push('');
-				$.each(split, function(i, value){
-					handle.getControl().val(value).appendTo($cond);
-				});                               
-				$cond.addClass('more');
-				return; 
-			}
-			
-			handle.getControl().val(value).appendTo($cond);
-		},    
-		
-		
-		/* 計算 Field */
-		computeField: function($tr) {
-			var operator = $tr.find('.operator select').val();
-			var $input = $tr.find('.condition :input');
-			
-			var value = operator + $input.val();
-			switch (operator) {
-			case '..': /* 之間 */
-				value = $input.map(function(){ return $.trim(this.value); }).toArray().join('..');
-				break;
-				
-			case 'in': /* 內容列表 */
-			case '!in': /* 非內容列表 */
-				value = $input.map(function(){ return $.trim(this.value) || null; }).toArray().join('|');
-				if('!in' == operator){ value = '!'+value; }
-				break;
-			}
-			
 			$tr.find('.field').val(value);
-		}       
+		}
 	};
-	
-	
-	
-	$.fn.whereBuilder = function(columns) {
+
+
+
+	$.fn.whereBuilder = function (columns) {
 		var args = Array.prototype.slice.call(arguments, 1);
 
-		if (typeof(columns) === 'string') {
+		if (typeof (columns) === 'string') {
 			var $el = this.eq(0);
 			var instance = $el.data('WhereBuilder');
-			if(instance && $.isFunction(instance[columns])){ 
+			if (instance && $.isFunction(instance[columns])) {
 				return instance[columns].apply(instance, args);
-			} 
+			}
 			return instance;
-		} 
-		
+		}
+
 		return this.each(function () {
 			var $el = $(this);
 			var instance = $el.data('WhereBuilder');
-			if(instance){ return; }
-			
+			if (instance) { return; }
+
 			instance = new WhereBuilder(this, columns);
 			$el.data('WhereBuilder', instance);
 		});
 	};
-	
-	
-	
+
+
+
 	/* unobtrusive API */
-	jQuery(function($) {
+	jQuery(function ($) {
 		$(widgetSelector).each(function () {
 			var columns = {};
-			$(this).find('option').each(function(){
+			$(this).find('option').each(function () {
 				var $this = $(this);
 				columns[$this.val()] = {
-					'type': $this.attr('type') || 'string', 
+					'type': $this.attr('type') || 'string',
 					'label': $this.html() || $this.val()
 				};
 			});
-			
+
 			$(this).parent().whereBuilder(columns);
 		});
 	});
-	
+
 })(window.jQuery);

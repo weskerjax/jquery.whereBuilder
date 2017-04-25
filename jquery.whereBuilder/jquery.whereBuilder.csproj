@@ -21,6 +21,10 @@
     <Content Include="Scripts\jquery.whereBuilder\Readme.md" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="compilerconfig.json" />
+    <None Include="compilerconfig.json.defaults">
+      <DependentUpon>compilerconfig.json</DependentUpon>
+    </None>
     <None Include="jquery.whereBuilder.nuspec" />
   </ItemGroup>
   <!-- 空的 Build -->
