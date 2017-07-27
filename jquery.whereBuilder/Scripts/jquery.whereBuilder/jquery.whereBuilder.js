@@ -401,45 +401,6 @@
 		};
 	});
 
-	
-
-	/*=[time]====================================*/
-	typeHandles.push(function (type) {
-		type = ('' + type).toLowerCase();
-
-		var supportType = ['time', 'timespan'];
-		if ($.inArray(type, supportType) === -1) { return null; }
-
-		function inputSetting($input) {
-			$input.datetimepicker({ format: 'HH:mm:ss', pickDate: false, pickTime: true });
-		}
-
-		return {
-			getOperator: function () {
-				return buildOperator(['', '!=', '..', '<', '<=', '>', '>=', 'in', '!in']);
-			},
-			setControl: function ($cond, mod) { /* input [single, between, multiple] */
-				switch (mod) {
-					case 'between': /* 之間 */
-						var $group = $('<div class="input-group input-group-sm">');
-						$group.append(createInput(inputSetting));
-						$group.append('<span class="input-group-addon">~</span>');
-						$group.append(createInput(inputSetting));
-						$cond.html($group);
-						break;
-					case 'multiple':
-						$cond.html(createTextarea(textareaSetting));
-						break;
-					default:
-						$cond.html(createInput(inputSetting));
-						break;
-				}
-			},
-			revertControl: baseHandle.revertControl,
-			getValues: baseHandle.getValues
-		};
-	});
-
 
 
 	/*=[bool]====================================*/
@@ -560,6 +521,9 @@
 		self._initEvent();
 	}
 
+	WhereBuilder.buildOperator = buildOperator;
+	WhereBuilder.baseHandle = baseHandle;
+	WhereBuilder.typeHandles = typeHandles;
 
 
 	WhereBuilder.prototype = {
