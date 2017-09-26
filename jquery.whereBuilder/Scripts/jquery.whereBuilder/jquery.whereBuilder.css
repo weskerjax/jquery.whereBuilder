@@ -63,3 +63,15 @@ table.where-builder-picker .condition .options .checkbox-inline:hover {
 table.where-builder-picker .delete_btn {
   padding-left: 10px;
 }
+@media (max-width: 510px) {
+  table.where-builder-picker .column select {
+    padding: 0 2px;
+  }
+  table.where-builder-picker .operator select {
+    width: 40px;
+    padding: 0 2px;
+  }
+  table.where-builder-picker .delete_btn {
+    padding-left: 4px;
+  }
+}
