@@ -44,12 +44,12 @@
 		if ($.isArray(items)) {
 			$.each(items, function (i, text) { options.push({ value: text, text: text }); });
 		} else {
-			$.each(items, function (value, text) {options.push({ value: value, text: text }); });
+			$.each(items, function (value, text) { options.push({ value: value, text: text }); });
 		}
 		return options;
 	}
 
-	
+
 	function createInput(setting) {
 		var $input = $('<input type="text" class="form-control input-sm" />');
 		if (setting) { setting($input); }
@@ -61,12 +61,12 @@
 	function createTextarea(setting) {
 		var $input = $('<textarea class="form-control input-sm" placeholder="多筆查詢一行一個"></textarea>');
 		if (setting) { setting($input); }
-				
+
 		$input.bind({
 			'focus': function () {
 				this.select();
 			},
-			'change':function () {
+			'change': function () {
 				var uniqueSet = {};
 				$.each($(this).val().split(/\s/), function (i, value) {
 					uniqueSet[$.trim(value)] = 1;
@@ -75,7 +75,7 @@
 				var values = $.map(uniqueSet, function (i, value) { return value; });
 				$(this).val(values.join('\n'));
 			},
-			'init change keyup paste cut':function (e) {
+			'init change keyup paste cut': function (e) {
 				$(this).height(0).height($(this).prop("scrollHeight") + 10);
 			},
 		});
@@ -109,6 +109,14 @@
 
 
 
+	function addYear(dateStr, num) {
+		if (!dateStr) { return ''; }
+
+		return dateStr.replace(/^[0-9]+\b/, function (year) {
+			return parseInt(year, 10) + num;
+		});
+	}
+
 
 
 	/*######################################################*/
@@ -128,19 +136,19 @@
 		//getOperator: function () {},
 		setControl: function ($cond, mod) { /* input [single, between, multiple] */
 			switch (mod) {
-			case 'between': /* 之間 */
-				var $group = $('<div class="input-group input-group-sm">');
-				$group.append(createInput(this._inputSetting));
-				$group.append('<span class="input-group-addon">~</span>');
-				$group.append(createInput(this._inputSetting));
-				$cond.html($group);
-				break;
-			case 'multiple':
-				$cond.html(createTextarea(this._inputSetting));
-				break;
-			default:
-				$cond.html(createInput(this._inputSetting));
-				break;
+				case 'between': /* 之間 */
+					var $group = $('<div class="input-group input-group-sm">');
+					$group.append(createInput(this._inputSetting));
+					$group.append('<span class="input-group-addon">~</span>');
+					$group.append(createInput(this._inputSetting));
+					$cond.html($group);
+					break;
+				case 'multiple':
+					$cond.html(createTextarea(this._inputSetting));
+					break;
+				default:
+					$cond.html(createInput(this._inputSetting));
+					break;
 			}
 		},
 		revertControl: function ($cond, mod, values) {
@@ -148,16 +156,16 @@
 			var $input = $cond.find(':input');
 
 			switch (mod) {
-			case 'between': /* 之間 */
-				$input.eq(0).val(values[0]);
-				$input.eq(1).val(values[1]);
-				break;
-			case 'multiple':
-				$input.val(values.join('\n')).trigger('init');
-				break;
-			default:
-				$input.val(values.join(' '));
-				break;
+				case 'between': /* 之間 */
+					$input.eq(0).val(values[0]);
+					$input.eq(1).val(values[1]);
+					break;
+				case 'multiple':
+					$input.val(values.join('\n')).trigger('init');
+					break;
+				default:
+					$input.val(values.join(' '));
+					break;
 			}
 		},
 		getValues: function ($cond, mod) {
@@ -203,7 +211,7 @@
 
 		return {
 			_inputSetting: function ($input) {
-				$input.css('text-transform','uppercase');
+				$input.css('text-transform', 'uppercase');
 				$input.change(function () { this.value = this.value.toUpperCase(); });
 			},
 			getOperator: function () {
@@ -224,7 +232,7 @@
 		var supportType = ['number', 'decimal', 'float', 'double'];
 		if ($.inArray(type, supportType) === -1) { return null; }
 
- 
+
 		return {
 			_inputSetting: function ($input) {
 				$input.keydown(function (e) {
@@ -255,7 +263,7 @@
 		var supportType = ['int', 'long', 'short', 'int32', 'int64'];
 		if ($.inArray(type, supportType) === -1) { return null; }
 
- 
+
 		return {
 			_inputSetting: function ($input) {
 				$input.keydown(function (e) {
@@ -324,44 +332,23 @@
 		var supportType = ['date'];
 		if ($.inArray(type, supportType) === -1) { return null; }
 
-
-		function inputSetting($input) {
-			$input.datetimepicker({ format: 'yyyy-MM-dd', pickTime: false });
-		}
-
-		function textareaSetting($input) {
-			$input.datetimepicker({ format: 'yyyy-MM-dd', pickTime: false });
-			$input.on('dp.change', function (e) {
-				var orgValue = $.trim($input.val());
-				if (orgValue) { orgValue += '\n'; }
-
-				$input.val(orgValue + moment(e.date).format("YYYY-MM-DD"));
-				$input.data('DateTimePicker').show();
-			}); 
-		}
-
-
 		return {
-		    getOperator: function () {
-		        return buildOperator(['', '!=', '..', '<', '<=', '>', '>=', 'in', '!in']);
-		    },
-		    setControl: function ($cond, mod) { /* input [single, between, multiple] */
-				switch (mod) {
-				case 'between': /* 之間 */
-					var $group = $('<div class="input-group input-group-sm">');
-					$group.append(createInput(inputSetting));
-					$group.append('<span class="input-group-addon">~</span>');
-					$group.append(createInput(inputSetting));
-					$cond.html($group);
-					break;
-				case 'multiple':
-					$cond.html(createTextarea(textareaSetting));
-					break;
-				default:
-					$cond.html(createInput(inputSetting));
-					break;
-				}
+			_inputSetting: function ($input) {
+				$input.datetimepicker({ format: 'yyyy-MM-dd', pickTime: false });
+				if (!$input.is('textarea')) { return; }
+
+				$input.on('dp.change', function (e) {
+					var orgValue = $.trim($input.val());
+					if (orgValue) { orgValue += '\n'; }
+
+					$input.val(orgValue + moment(e.date).format("YYYY-MM-DD"));
+					$input.data('DateTimePicker').show();
+				});
 			},
+			getOperator: function () {
+				return buildOperator(['', '!=', '..', '<', '<=', '>', '>=', 'in', '!in']);
+			},
+			setControl: baseHandle.setControl,
 			revertControl: baseHandle.revertControl,
 			getValues: baseHandle.getValues
 		};
@@ -376,30 +363,116 @@
 		var supportType = ['datetime'];
 		if ($.inArray(type, supportType) === -1) { return null; }
 
-		function inputSetting($input) {
-			$input.datetimepicker({ format: 'yyyy-MM-dd', pickTime: false });
-		}
-
-
 		return {
+			_inputSetting: function ($input) {
+				$input.datetimepicker({ format: 'yyyy-MM-dd', pickTime: false });
+			},
 			getOperator: function () {
 				return buildOperator(['..', '<', '<=', '>', '>=']);
 			},
-			setControl: function ($cond, mod) { /* input [single, between, multiple] */
-				if (mod === 'between') {
-					var $group = $('<div class="input-group input-group-sm">');
-					$group.append(createInput(inputSetting));
-					$group.append('<span class="input-group-addon">~</span>');
-					$group.append(createInput(inputSetting));
-					$cond.html($group);
-				} else {
-					$cond.html(createInput(inputSetting));
-				}
-			},
+			setControl: baseHandle.setControl,
 			revertControl: baseHandle.revertControl,
 			getValues: baseHandle.getValues
 		};
 	});
+
+
+
+
+
+
+
+	/*=[cndate]====================================*/
+	typeHandles.push(function (type) {
+		type = ('' + type).toLowerCase();
+
+		var supportType = ['cndate'];
+		if ($.inArray(type, supportType) === -1) { return null; }
+
+		return {
+			_inputSetting: function ($input) {
+				$input.datetimepicker({
+					format: 'yyyy-MM-dd',
+					pickTime: false,
+					transferOutYear: function (year) { return year - 1911; },
+					transferInDate: function (dateStr) {
+						return addYear(dateStr, 1911);
+					}
+				});
+				if (!$input.is('textarea')) { return; }
+
+				$input.on('dp.change', function (e) {
+					var orgValue = $.trim($input.val());
+					if (orgValue) { orgValue += '\n'; }
+
+					var dateStr = moment(e.date).format("YYYY-MM-DD");
+					$input.val(orgValue + addYear(dateStr, -1911));
+					$input.data('DateTimePicker').show();
+				});
+			},
+			getOperator: function () {
+				return buildOperator(['', '!=', '..', '<', '<=', '>', '>=', 'in', '!in']);
+			},
+			setControl: baseHandle.setControl,
+			revertControl: function ($cond, mod, values) {
+				var cnValues = $.map(values, function (dateStr) {
+					return addYear(dateStr, -1911);
+				});
+
+				baseHandle.revertControl($cond, mod, cnValues);
+			},
+			getValues: function ($cond, mod) {
+				var values = baseHandle.getValues($cond, mod);
+
+				return $.map(values, function (dateStr) {
+					return addYear(dateStr, 1911);
+				});
+			}
+		};
+	});
+
+
+
+	/*=[cndatetime]====================================*/
+	typeHandles.push(function (type) {
+		type = ('' + type).toLowerCase();
+
+		var supportType = ['cndatetime'];
+		if ($.inArray(type, supportType) === -1) { return null; }
+
+
+		return {
+			_inputSetting: function ($input) {
+				$input.datetimepicker({
+					format: 'yyyy-MM-dd',
+					pickTime: false,
+					transferOutYear: function (year) { return year - 1911; },
+					transferInDate: function (dateStr) {
+						return addYear(dateStr, 1911);
+					}
+				});
+			},
+			getOperator: function () {
+				return buildOperator(['..', '<', '<=', '>', '>=']);
+			},
+			setControl: baseHandle.setControl,
+			revertControl: function ($cond, mod, values) {
+				var cnValues = $.map(values, function (dateStr) {
+					return addYear(dateStr, -1911);
+				});
+
+				baseHandle.revertControl($cond, mod, cnValues);
+			},
+			getValues: function ($cond, mod) {
+				var values = baseHandle.getValues($cond, mod);
+
+				return $.map(values, function (dateStr) {
+					return addYear(dateStr, 1911);
+				});
+			}
+		};
+	});
+
 
 
 
@@ -463,9 +536,9 @@
 				revertControl: function ($cond, mod, values) {
 					this.setControl($cond, mod);
 					var $input = $cond.find(':input');
-				
+
 					if (mod === 'multiple') {
-						$input.prop('checked', function () { return ~$.inArray(this.value, values); }); 
+						$input.prop('checked', function () { return ~$.inArray(this.value, values); });
 					} else {
 						$input.val(values[0]);
 					}
@@ -477,7 +550,7 @@
 					return $input.map(function () { return $.trim($(this).val()); }).toArray();
 				}
 			};
-		}	 
+		}
 	});
 
 
@@ -608,21 +681,21 @@
 
 				/* input [single, between, multiple] */
 				switch (operator) {
-				case '..': /* 之間 */
-					if (mod === 'between') { return; }
-					mod = 'between';
-					break;
+					case '..': /* 之間 */
+						if (mod === 'between') { return; }
+						mod = 'between';
+						break;
 
-				case 'in': /* 內容列表 */
-				case '!in': /* 非內容列表 */
-					if (mod === 'multiple') { return self.computeField($tr); }
-					mod = 'multiple';
-					break;
+					case 'in': /* 內容列表 */
+					case '!in': /* 非內容列表 */
+						if (mod === 'multiple') { return self.computeField($tr); }
+						mod = 'multiple';
+						break;
 
-				default:
-					if (mod === 'single') { return self.computeField($tr); }
-					mod = 'single';
-					break;
+					default:
+						if (mod === 'single') { return self.computeField($tr); }
+						mod = 'single';
+						break;
 				}
 
 				handle.setControl($cond, mod);
@@ -738,7 +811,7 @@
 
 				case 'in': /* 內容列表 */
 				case '!in': /* 非內容列表 */
-					value = values.join('|')+'|';
+					value = values.join('|') + '|';
 					if ('!in' === operator) { value = '!' + value; }
 					break;
 			}
