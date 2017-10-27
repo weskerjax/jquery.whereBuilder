@@ -19,6 +19,7 @@ table.where-builder-picker .add_btn {
 }
 table.where-builder-picker .column select {
   max-width: 150px;
+  min-width: 70px;
 }
 table.where-builder-picker .operator select {
   width: 60px;
