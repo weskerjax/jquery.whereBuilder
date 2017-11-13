@@ -39,14 +39,16 @@
 	}
 
 	function makeOptions(items) {
-		var options = [];
-
-		if ($.isArray(items)) {
-			$.each(items, function (i, text) { options.push({ value: text, text: text }); });
-		} else {
-			$.each(items, function (value, text) { options.push({ value: value, text: text }); });
-		}
-		return options;
+		var isObject = !$.isArray(items);
+		return $.map(items, function (item, value) {
+			if (isObject) {
+				return { value: value, text: item };
+			} else if ($.isArray(item)) {
+				return { value: item[0], text: item[1] };
+			} else {
+				return { value: item, text: item };
+			}
+		}); 
 	}
 
 
@@ -496,9 +498,15 @@
 		} else if (window[type] !== undefined) {
 			items = window[type];
 		} else {
-			try { items = $.parseJSON(type); }
-			catch (e) { console.error(type + ' ' + e); return null; }
+			var jsonStr = type;
+			if (jsonStr[0] == '{') {
+				jsonStr = jsonStr.replace(/(["']?\w+["']?):(["'](?:\.|(\\")|(\\')|[^"'])*["'])/ig, '[$1,$2]');
+				jsonStr = jsonStr.replace(/^{/, '[').replace(/}$/, ']');
+			}
+			try { items = $.parseJSON(jsonStr); }
+			catch (e) { console.error(jsonStr + ' ' + e); return null; }
 		}
+
 
 		var options = makeOptions(items);
 

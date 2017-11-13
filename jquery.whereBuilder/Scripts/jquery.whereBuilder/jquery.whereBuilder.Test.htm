@@ -1,96 +1,102 @@
 ﻿<!DOCTYPE html>
 <html class="" style="">
 <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta name="Robots" content="none">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <title>WhereBuilder Test</title>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="Robots" content="none">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<title>WhereBuilder Test</title>
 
-    <link href="../bootstrap-3.3.6/css/bootstrap.css" type="text/css" rel="stylesheet" />
-    <link href="../bootstrap-datetimepicker/bootstrap-datetimepicker.css" type="text/css" rel="stylesheet" />
-    <link href="../font-awesome-4.5.0/css/font-awesome.css" type="text/css" rel="stylesheet" />
-    <link href="../../Content/Styles/extensions.css" type="text/css" rel="stylesheet" />
+	<link href="../bootstrap-3.3.6/css/bootstrap.css" type="text/css" rel="stylesheet" />
+	<link href="../bootstrap-datetimepicker-1.0.1/bootstrap-datetimepicker.css" type="text/css" rel="stylesheet" />
+	<link href="../font-awesome-4.5.0/css/font-awesome.css" type="text/css" rel="stylesheet" />
+	<link href="../../Content/Styles/extensions.css" type="text/css" rel="stylesheet" />
 
 
-    <script src="../moment-2.7.0/moment-2.7.0.js" type="text/javascript"></script>
-    <script src="../jquery-1.12.2/jquery-1.12.2.js" type="text/javascript"></script>
-    <script src="../jquery.cookie-1.4.1/jquery.cookie-1.4.1.js" type="text/javascript"></script>
-    <script src="../jquery.tmpl-1.0.0/jquery.tmpl-1.0.0.js" type="text/javascript"></script>
-    <script src="../bootstrap-3.3.6/js/bootstrap.js" type="text/javascript"></script>
-    <script src="../bootstrap-datetimepicker/bootstrap-datetimepicker.js" type="text/javascript"></script>
-    <script src="../bootstrap-typeahead/bootstrap-typeahead.js" type="text/javascript"></script>
-    <script src="../main/jquery.ezAjax.js" type="text/javascript"></script>
-    <script src="../main/StatusMsg.js" type="text/javascript"></script>
-    <script src="../main/ext-picker.js" type="text/javascript"></script>
-    <script src="../main/ext-typeahead.js" type="text/javascript"></script>
-    <script src="../main/global.js" type="text/javascript"></script>
+	<script src="../moment-2.7.0/moment-2.7.0.js" type="text/javascript"></script>
+	<script src="../jquery-1.12.2/jquery-1.12.2.js" type="text/javascript"></script>
+	<script src="../jquery.cookie-1.4.1/jquery.cookie-1.4.1.js" type="text/javascript"></script>
+	<script src="../jquery.tmpl-1.0.0/jquery.tmpl-1.0.0.js" type="text/javascript"></script>
+	<script src="../bootstrap-3.3.6/js/bootstrap.js" type="text/javascript"></script>
+	<script src="../bootstrap-datetimepicker-1.0.1/bootstrap-datetimepicker.js" type="text/javascript"></script>
+	<script src="../bootstrap-typeahead-1.0.0/bootstrap-typeahead.js" type="text/javascript"></script>
+	<script src="../main/jquery.ezAjax.js" type="text/javascript"></script>
+	<script src="../main/StatusMsg.js" type="text/javascript"></script>
+	<script src="../main/ext-picker.js" type="text/javascript"></script>
+	<script src="../main/ext-typeahead.js" type="text/javascript"></script>
+	<script src="../main/global.js" type="text/javascript"></script>
 
-    <script src="jquery.whereBuilder.js" type="text/javascript"></script>
+	<script src="jquery.whereBuilder.js" type="text/javascript"></script>
 
 </head>
 <body id="MainLayout" class="">
 
-    <!--
-    firefox 不顯示 font-awesome 的問題
-        URL  about:config
-        Click security.fileuri.strict_origin_policy  To  false
-    -->
+	<!--
+	firefox 不顯示 font-awesome 的問題
+		URL  about:config
+		Click security.fileuri.strict_origin_policy  To  false
+	-->
 
 
 
-    <div id="StatusMsg"></div>
+	<div id="StatusMsg"></div>
 
 
-    <div id="ContainerWrapper" class="clearfix" style="width: 800px; margin: 0 auto; padding-top: 100px;">
+	<div id="ContainerWrapper" class="clearfix" style="width: 800px; margin: 0 auto; padding-top: 100px;">
 
 
-        <form class="well btn-toolbar" action="">
-            <div id="where-builder" class="toolbar-left">
-            </div>
+		<form class="well btn-toolbar" action="">
+			<div id="where-builder" class="toolbar-left">
+			</div>
 			<div class="toolbar-left">
 				<button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-search fa-lg"></i> 搜尋</button>
 			</div>			
-        </form>
+		</form>
 
 
 
-        <form class="well btn-toolbar">
-            <div class="toolbar-left">
-                <select class="where-builder hidden">
-                    <option selected="selected" value="tntr" type="string">課別</option>
-                    <option value="gntr" type="string">組別</option>
-                    <option value="car_date" type="date">借用日</option>
-                    <option value="status" type='{"y":"開啟","n":"關閉"}'>狀態</option>
-                    <option value="status2" type="statusItems">狀態2</option>
-                    <option value="int" type="int">int</option>
+		<form class="well btn-toolbar">
+			<div class="toolbar-left">
+				<select class="where-builder hidden">
+					<option selected="selected" value="tntr" type="string">課別</option>
+					<option value="gntr" type="string">組別</option>
+					<option value="car_date" type="date">借用日</option>
+					<option value="status" type='{"y":"開啟","n":"關閉"}'>狀態</option>
+					<option value="status2" type="statusItems">狀態2</option>
+					<option value="int" type="int">int</option>
 					<option value="uint" type="int">uint</option>
 					<option value="float" type="float">float</option>
-                </select>
-            </div>
+					<option value="WarehouseId" type="{&quot;1&quot;:&quot;UnitLoad&quot;,&quot;2&quot;:&quot;MiniLoad \&quot;(1F,2F)&quot;,&quot;3&quot;:&quot;MiniLoad (3F,4F)&quot;,&quot;4&quot;:&quot;平置倉(1F) &quot;,&quot;5&quot;:&quot;Test02測試倉&quot;,&quot;6&quot;:&quot;Test01測試倉&quot;,&quot;7&quot;:&quot;test1&quot;}">倉庫</option>
+					<option value="ZoneId" type="{&quot;1&quot;:&quot;1A0000 暫存區&quot;,&quot;2&quot;:&quot;1A0100 本廠實驗室&quot;,&quot;3&quot;:&quot;1A0200 本廠機具室&quot;,&quot;4&quot;:&quot;1A0300 TL三樓平置倉&quot;,&quot;5&quot;:&quot;1A0400 本廠成品倉&quot;,&quot;6&quot;:&quot;1A0900 存樣倉&quot;,&quot;7&quot;:&quot;1B0100 本廠押出現場儲位&quot;,&quot;8&quot;:&quot;1B0101 本廠現場1F&quot;,&quot;9&quot;:&quot;1B0102 一廠機具組備品&quot;,&quot;10&quot;:&quot;1B0200 本廠現場2F&quot;,&quot;11&quot;:&quot;1B0300 本廠現場3F&quot;,&quot;12&quot;:&quot;1B0400 本廠現場4F&quot;,&quot;13&quot;:&quot;1B0500 本廠現場5F&quot;,&quot;14&quot;:&quot;1C0100 本廠物料待驗區&quot;,&quot;15&quot;:&quot;1C0101 本廠材倉E1&quot;,&quot;16&quot;:&quot;1C0103 本廠(儀表倉)&quot;,&quot;17&quot;:&quot;1D0100 本廠大自動倉&quot;,&quot;18&quot;:&quot;1D0199 本廠不良品倉&quot;,&quot;19&quot;:&quot;1D0200 本廠小自動倉&quot;,&quot;20&quot;:&quot;1F0100 成品倉&quot;,&quot;21&quot;:&quot;1F0900 總公司倉(本廠)&quot;,&quot;22&quot;:&quot;1F0901 研發暫放倉&quot;,&quot;23&quot;:&quot;1I0500 供應商(庚和)&quot;,&quot;24&quot;:&quot;1I0501 供應商(利瀅)&quot;,&quot;25&quot;:&quot;1I0502 供應商(圓商)&quot;,&quot;26&quot;:&quot;1I0503 供應商(林宗地)&quot;,&quot;27&quot;:&quot;1I0504 供應商(祥鼎)&quot;,&quot;28&quot;:&quot;1I0505 供應商(宇阡)&quot;,&quot;29&quot;:&quot;1I0506 供應商(昇鴻)&quot;,&quot;30&quot;:&quot;1I0510 供應商(愛思特)&quot;,&quot;31&quot;:&quot;1I0511 供應商(鑫億)&quot;,&quot;32&quot;:&quot;1I0512 供應商(琪霖)&quot;,&quot;33&quot;:&quot;1I0513 供應商(禾亦)&quot;,&quot;34&quot;:&quot;1I0514 供應商(鍵緯)&quot;,&quot;35&quot;:&quot;1I0515 供應商(玖豐)&quot;,&quot;36&quot;:&quot;1I0516 供應商(琰勝)&quot;,&quot;37&quot;:&quot;1I0517 供應商(德勝)&quot;,&quot;38&quot;:&quot;1I0518 供應商(益昌 )&quot;,&quot;39&quot;:&quot;1I0519 供應商(淡金)&quot;,&quot;40&quot;:&quot;1I0520 供應商(今技)&quot;,&quot;41&quot;:&quot;1I0521 供應商(利樟 )&quot;,&quot;42&quot;:&quot;1I0522 供應商(一展)&quot;,&quot;43&quot;:&quot;1I0523 供應商(昆良)&quot;,&quot;44&quot;:&quot;1I0524 供應商(均旺)&quot;,&quot;45&quot;:&quot;1I0525 供應商(信輔)&quot;,&quot;46&quot;:&quot;1I0600 供應商(大中)&quot;,&quot;47&quot;:&quot;1I0700 供應商(技峰)&quot;,&quot;48&quot;:&quot;1I0800 供應商暫放倉&quot;,&quot;49&quot;:&quot;1K0100 本廠堪用倉&quot;,&quot;50&quot;:&quot;1L0100 客戶借貨倉&quot;,&quot;51&quot;:&quot;1S0100 樣品倉&quot;,&quot;52&quot;:&quot;1X0200 本廠挪用倉&quot;,&quot;53&quot;:&quot;2B0001 一廠製袋區&quot;,&quot;54&quot;:&quot;2B0200 一廠二樓&quot;,&quot;55&quot;:&quot;2B0201 一廠押出儲位&quot;,&quot;56&quot;:&quot;2B0202 一廠現場2F&quot;,&quot;57&quot;:&quot;2B0300 一廠三樓尿袋袋體&quot;,&quot;58&quot;:&quot;2B0301 一廠三樓量器組&quot;,&quot;59&quot;:&quot;2B0400 一廠四樓高周波&quot;,&quot;60&quot;:&quot;2B0401 一廠四樓超音波&quot;,&quot;61&quot;:&quot;2B0402 一廠四樓手工A&quot;,&quot;62&quot;:&quot;2B0403 一廠現場4F&quot;,&quot;63&quot;:&quot;2B0500 一廠五樓&quot;,&quot;64&quot;:&quot;2B0501 一廠現場5F(A)&quot;,&quot;65&quot;:&quot;2B0502 一廠現場5F(B)&quot;,&quot;66&quot;:&quot;2B0503 一廠現場5F(C)&quot;,&quot;67&quot;:&quot;2C0101 一廠材倉一樓(A)&quot;,&quot;68&quot;:&quot;2C0102 一廠材倉一樓(B)&quot;,&quot;69&quot;:&quot;2D0100 一廠成品倉&quot;,&quot;70&quot;:&quot;2D0300 一廠大自動倉&quot;,&quot;71&quot;:&quot;2D0301 一廠大自動倉(WCG)&quot;,&quot;72&quot;:&quot;2D0399 一廠不良品(自動倉)&quot;,&quot;73&quot;:&quot;2D0400 一廠小自動倉&quot;,&quot;74&quot;:&quot;2D0499 一 廠不良品倉(小套)&quot;,&quot;75&quot;:&quot;2F0100 一廠待滅菌&quot;,&quot;76&quot;:&quot;2F0400 一廠成品倉&quot;,&quot;77&quot;:&quot;2H0001 一廠地下室(標籤)&quot;,&quot;78&quot;:&quot;2H0002 一廠地下室&quot;,&quot;79&quot;:&quot;2H0010 一廠地下室WCG倉&quot;,&quot;80&quot;:&quot;2K0100 一廠堪用倉&quot;,&quot;81&quot;:&quot;2Y0100 一廠報廢倉&quot;,&quot;83&quot;:&quot;3B0100 三廠現場&quot;,&quot;84&quot;:&quot;3B0300 三廠現場倉&quot;,&quot;85&quot;:&quot;3C0101 TL3地下室&quot;,&quot;86&quot;:&quot;3C0201 三廠14號材料倉&quot;,&quot;87&quot;:&quot;3C0301 三廠14號材料倉3樓&quot;,&quot;88&quot;:&quot;3C0508 三廠材料倉&quot;,&quot;89&quot;:&quot;3C0509 三廠組立D&quot;,&quot;90&quot;:&quot;3F0100 三廠成品倉&quot;,&quot;91&quot;:&quot;3F0200 三廠成品倉&quot;,&quot;92&quot;:&quot;3F0201 WCG倉&quot;,&quot;93&quot;:&quot;3F0300 三廠成品倉&quot;,&quot;94&quot;:&quot;3F0400 三廠出貨倉&quot;,&quot;95&quot;:&quot;3G0101 三廠材倉(一樓)&quot;,&quot;96&quot;:&quot;3G0110 三廠膠粒倉&quot;,&quot;97&quot;:&quot;3K0100 三廠堪用倉&quot;,&quot;98&quot;:&quot;3Y0100 三廠報廢倉&quot;,&quot;99&quot;:&quot;3Z0100 三廠不良品倉&quot;,&quot;100&quot;:&quot;8A0100 二廠&quot;,&quot;101&quot;:&quot;E01001 射出廠1樓材料倉&quot;,&quot;102&quot;:&quot;E01002 射出廠2樓材料倉&quot;,&quot;103&quot;:&quot;E09001 模具廠&quot;,&quot;104&quot;:&quot;EB0101 射出廠現場倉&quot;,&quot;105&quot;:&quot;EF0901 太醫精研發倉&quot;,&quot;106&quot;:&quot;EK0100 太醫精報廢倉&quot;,&quot;108&quot;:&quot;GRSS FCED&quot;,&quot;109&quot;:&quot;JOANNE001 Test測試儲區&quot;,&quot;107&quot;:&quot;Test001 Test測試儲區&quot;}">儲區</option>
+					<option value="CarrierCode" type="upper">載具編號</option>
+					<option value="LocationSize" type="{&quot;Undefined&quot;:&quot;未定義&quot;,&quot;Small&quot;:&quot;小&quot;,&quot;Medium&quot;:&quot;中&quot;,&quot;Large&quot;:&quot;大&quot;,&quot;Increase&quot;:&quot;加大&quot;}">庫位尺寸</option>
+					<option value="UseStatus" type="{&quot;Enable&quot;:&quot;啟用&quot;,&quot;Disable&quot;:&quot;停用&quot;}">使用狀態</option>
+					<option value="LoadStatus" type="{&quot;Load&quot;:&quot;裝載&quot;,&quot;AirLoad&quot;:&quot;空載具&quot;,&quot;Empty&quot;:&quot;空庫位&quot;}">乘載狀態</option>
+				</select>
+			</div>
 			<div class="toolbar-left">
 				<button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-search fa-lg"></i> 搜尋</button>
 			</div>
-        </form>
+		</form>
 
-    </div>
+	</div>
 
 
-    <script type="text/javascript">
+	<script type="text/javascript">
 		var statusItems = {'y':'開啟','n':'關閉'};
 
-        $('#where-builder').whereBuilder({
-            'tntr': { 'type': 'string', 'label': '課別' },
-            'gntr': { 'type': 'string', 'label': '組別' },
-            'car_date': { 'type': 'date', 'label': '借用日' },
-            'maint_cnt': { 'type': 'number', 'label': '保養次數' },
-            'status': { 'type': statusItems, 'label': '狀態' },
-            'status2': { 'type': 'statusItems', 'label': '狀態2' },
-        });
-    </script>
+		$('#where-builder').whereBuilder({
+			'tntr': { 'type': 'string', 'label': '課別' },
+			'gntr': { 'type': 'string', 'label': '組別' },
+			'car_date': { 'type': 'date', 'label': '借用日' },
+			'maint_cnt': { 'type': 'number', 'label': '保養次數' },
+			'status': { 'type': statusItems, 'label': '狀態' },
+			'status2': { 'type': 'statusItems', 'label': '狀態2' },
+		});
+	</script>
 
 
 
-    <span style="top: -100px;" class="title-tip"></span>
+	<span style="top: -100px;" class="title-tip"></span>
 </body>
 </html>
