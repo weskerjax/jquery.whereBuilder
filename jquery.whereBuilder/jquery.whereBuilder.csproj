@@ -1,7 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{3A02F5FC-043A-4516-AFBA-A4FA77E3E5C5}</ProjectGuid>
+	<OutputPath>bin\</OutputPath>
     <!-- NuGet Package 需要此變數，給一個不存在的敷衍過去 -->
     <TargetPath>.\none</TargetPath>
   </PropertyGroup>
@@ -21,6 +24,9 @@
     </None>
     <None Include="jquery.whereBuilder.nuspec" />
   </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  
   <!-- 空的 Build -->
   <Target Name="Build" />
+  <Target Name="Rebuild" />
 </Project>
