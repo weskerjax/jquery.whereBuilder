@@ -48,7 +48,7 @@
 			} else {
 				return { value: item, text: item };
 			}
-		}); 
+		});
 	}
 
 
@@ -667,9 +667,9 @@
 				var column = $(this).val();
 				$tr.find('.field').attr('name', column);
 
-				var handle = self.columns[column].handle;
+				var handle = self.columns[column].handle || null;
 				$tr.data('handle', handle);
-				if (!handle) { return; }
+				if (!handle) { return $operator.val('').trigger('change'); }
 
 				$tr.find('.condition').data('mod', '');
 				$operator.html(handle.getOperator());
@@ -680,10 +680,10 @@
 			/* operator 對 condition 連動 */
 			self.$table.on('change', '.operator select', function () {
 				var $tr = $(this).closest('tr');
-				var handle = $tr.data('handle');
-				if (!handle) { return; }
-
 				var $cond = $tr.find('.condition');
+				var handle = $tr.data('handle');				
+				if (!handle) { return $cond.html(''); }
+
 				var mod = $cond.data('mod');
 				var operator = $(this).val();
 
@@ -804,12 +804,14 @@
 			handle.revertControl($cond, mod, values);
 		},
 
+
 		/* 計算 Field */
 		computeField: function ($tr) {
 			var $cond = $tr.find('.condition');
 			var handle = $tr.data('handle');
+			if (!handle) { return $tr.find('.field').val(''); }
+			
 			var operator = $tr.find('.operator select').val();
-
 			var values = handle.getValues($cond, $cond.data('mod'))
 			var value = operator + values[0];
 			switch (operator) {
