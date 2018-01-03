@@ -194,7 +194,7 @@
 
 		return {
 			getOperator: function () {
-				return buildOperator(['', '!=', '^=', '$=', '*=', 'in', '!in']);
+				return buildOperator(['', '!=', '^=', '$=', '*=', '<', '<=', '>', '>=', 'in', '!in']);
 			},
 			setControl: baseHandle.setControl,
 			revertControl: baseHandle.revertControl,
@@ -217,7 +217,7 @@
 				$input.change(function () { this.value = this.value.toUpperCase(); });
 			},
 			getOperator: function () {
-				return buildOperator(['', '!=', '^=', '$=', '*=', 'in', '!in']);
+				return buildOperator(['', '!=', '^=', '$=', '*=', '<', '<=', '>', '>=', 'in', '!in']);
 			},
 			setControl: baseHandle.setControl,
 			revertControl: baseHandle.revertControl,
