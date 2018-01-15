@@ -370,11 +370,44 @@
 				$input.datetimepicker({ format: 'yyyy-MM-dd', pickTime: false });
 			},
 			getOperator: function () {
-				return buildOperator(['..', '<', '<=', '>', '>=']);
+				return buildOperator(['', '..', '<', '<=', '>', '>=']);
 			},
 			setControl: baseHandle.setControl,
-			revertControl: baseHandle.revertControl,
-			getValues: baseHandle.getValues
+			revertControl: function ($cond, mod, values) {
+				values[0] = (values[0] || '').split(' ')[0];
+				values[1] = (values[1] || '').split(' ')[0];
+
+				if (values[0] == values[1]) {
+					mod = 'single';
+					$cond.data('mod', mod);
+					$cond.closest('tr').find('.operator select').val('');
+				}
+
+				this.setControl($cond, mod);
+				var $input = $cond.find(':input');
+
+				$input.eq(0).val(values[0]);
+				$input.eq(1).val(values[1]);
+			},
+			getValues: function ($cond, mod) {
+				var operator = $cond.closest('tr').find('.operator select').val();
+
+				var values = $cond.find(':input').map(function () { return $.trim($(this).val()); }).toArray();
+				switch (operator) {
+					case '':
+						values[0] = values[0] + '..' + values[0] + ' 23:59:59.999';
+						break;
+					case '<=':
+					case '>':
+						values[0] += ' 23:59:59.999';
+						break;
+					case '..': /* 之間 */
+						values[1] += ' 23:59:59.999';
+						break;
+				}
+
+				return values;
+			}
 		};
 	});
 
@@ -812,7 +845,7 @@
 			if (!handle) { return $tr.find('.field').val(''); }
 			
 			var operator = $tr.find('.operator select').val();
-			var values = handle.getValues($cond, $cond.data('mod'))
+			var values = handle.getValues($cond, $cond.data('mod'));
 			var value = operator + values[0];
 			switch (operator) {
 				case '..': /* 之間 */
