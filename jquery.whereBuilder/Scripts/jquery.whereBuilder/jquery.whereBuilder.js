@@ -183,6 +183,25 @@
 
 
 
+
+	/*=[divider 分隔線]====================================*/
+
+	typeHandles.push(function (type) {
+		type = ('' + type).toLowerCase();
+
+		var supportType = ['divider'];
+		if ($.inArray(type, supportType) === -1) { return null; }
+
+		return {
+			getOperator: function () { return ''; },
+			setControl: baseHandle.setControl,
+			revertControl: baseHandle.revertControl,
+			getValues: baseHandle.getValues
+		};
+	});
+
+
+
 	/*=[string]====================================*/
 
 	typeHandles.push(function (type) {
@@ -626,7 +645,11 @@
 		});
 
 		self.columnOption = $.map(self.columns, function (meta, column) {
-			return '<option value="' + column + '">' + meta.label + '</option>';
+			if (meta.type == 'divider') {
+				return '<option disabled>────────</option>';
+			} else {
+				return '<option value="' + column + '">' + meta.label + '</option>';
+			}
 		}).join('');
 
 		self._initField();
